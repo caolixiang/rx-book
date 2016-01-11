@@ -41,54 +41,55 @@ There are plenty of bad explanations and definitions out there on the internet. 
 
 So let's cut the bullshit. 
 
-#### Reactive programming 是一种对异步数据流进行编程的方法。
+#### Reactive programming 是针对异步数据流的编程。
 
-就某种程度而言，这并不是一个新的概念。事件总线亦或是典型的点击事件都是异步事件流。使用者可以观测异步事件流，并对其进行操作。Reactive如同强心剂：你可以创建不仅仅是点击、悬停之类的任意的事件流。事件流轻便而无处不在，种类丰富多样：变量，用户的输入，属性，缓存，数据结构等等都可以变为事件流。举例来说：微博简讯（译者注：比如关注的微博更新了）和点击事件都是我们所说的事件流：你监听事件流并作出相应的回应。
+一定程度而言，Reactive programming并不算新的概念。事件总线、点击事件都是异步流。开发者可以观测这些异步流，并调用特定的逻辑对它们进行处理。使用Reactive如同开挂：你可以创建点击、悬停之类的任意流。通常流廉价（点击一下就出来一个）而无处不在，种类丰富多样：变量，用户输入，属性，缓存，数据结构等等都可以产生流。举例来说：微博回文（译者注：比如你关注的微博更新了）和点击事件都是流：你可以监听流并调用特定的逻辑对它们进行处理。
 
-**On top of that, you are given an amazing toolbox of functions to combine, create and filter any of those streams.** That's where the "functional" magic kicks in. A stream can be used as an input to another one. Even multiple streams can be used as inputs to another stream. You can _merge_ two streams. You can _filter_ a stream to get another one that has only those events you are interested in. You can _map_ data values from one stream to another new one.
+**基于流的概念，Reactive赋予了你一系列神奇的函数工具集，使用他们可以合并、创建、过滤这些流。** 一个流或者一系列流可以作为另一个流的输入。你可以_合并_
+两个流，从一堆流中_过滤_你真正感兴趣的那一些，将值从一个流_映射_到另一个流。
 
-If streams are so central to Reactive, let's take a careful look at them, starting with our familiar "clicks on a button" event stream.
+如果流是Reactive programming的核心，我们不妨从“点击页面中的按钮”这个熟悉的场景详细地了解它。
 
 ![Click event stream](http://i.imgur.com/cL4MOsS.png)
 
-A stream is a sequence of **ongoing events ordered in time**. It can emit three different things: a value (of some type), an error, or a "completed" signal. Consider that the "completed" takes place, for instance, when the current window or view containing that button is closed.
+流是包含了**有时序，正在进行事件**的序列，可以反射值（某种类型）、错误、完成信号。流在包含按钮的浏览器窗口被关闭时发出完成信号。
 
-We capture these emitted events only **asynchronously**, by defining a function that will execute when a value is emitted, another function when an error is emitted, and another function when 'completed' is emitted. Sometimes these last two can be omitted and you can just focus on defining the function for values. The "listening" to the stream is called **subscribing**. The functions we are defining are observers. The stream is the subject (or "observable") being observed. This is precisely the [Observer Design Pattern](https://en.wikipedia.org/wiki/Observer_pattern).
+我们**异步地**捕获发射的事件，定义一系列函数在值被发射后，在错误被发射后，在完成信号被发射后执行。有时，我们忽略对错误，完成信号地处理，仅仅关注对值的处理。对流进行监听，通常称为**订阅**，处理流的函数是观测者，流是被观测的主体。这就是[观测者设计模式](https://en.wikipedia.org/wiki/Observer_pattern)。
 
-An alternative way of drawing that diagram is with ASCII, which we will use in some parts of this tutorial:
+教程中，我们有时会使用ASCII字符来绘制图表：
+
 ```
 --a---b-c---d---X---|->
 
-a, b, c, d are emitted values
-X is an error
-| is the 'completed' signal
----> is the timeline
+a, b, c, d 是数据流发射的值
+X 是数据流发射的错误
+| 是完成信号
+---> 是时序轴
 ```
 
-Since this feels so familiar already, and I don't want you to get bored, let's do something new: we are going to create new click event streams transformed out of the original click event stream.
+哔哔完了，我们来点新的，不然很快你就感觉到寂寞了。我们将把原来的点击事件流转换为新的点击事件流。
 
-First, let's make a counter stream that indicates how many times a button was clicked. In common Reactive libraries, each stream has many functions attached to it, such as `map`, `filter`, `scan`, etc. When you call one of these functions, such as `clickStream.map(f)`, it returns a **new stream** based on the click stream. It does not modify the original click stream in any way. This is a property called **immutability**, and it goes together with Reactive streams just like pancakes are good with syrup. That allows us to chain functions like `clickStream.map(f).scan(g)`:
+首先我们创建一个计数流来表明按钮被点击的次数。在Reactive中，每一个流都拥有一些列方法，例如`map`，`filter`，`scan` 等等。当你在流上调用这些方法，例如`clickStream.map(f)`，会返回基于点击事件流的**新的流**，同时原来的点击事件流并不会被改变，这个特性被称为**不可变性（immutability）**。不可变性与Reactive配合相得益彰，如同美酒加咖啡。我们可以链式地调用他们：`clickStream.map(f).scan(g)`
 
 ```
-  clickStream: ---c----c--c----c------c-->
-               vvvvv map(c becomes 1) vvvv
-               ---1----1--1----1------1-->
-               vvvvvvvvv scan(+) vvvvvvvvv
-counterStream: ---1----2--3----4------5-->
+  clickStream: ---c----c--c----c------c--->
+               vvvvv map(c becomes 1) vvvvv
+               ---1----1--1----1------1--->
+               vvvvvvvvv  scan(+) vvvvvvvvv
+counterStream: ---1----2--3----4------5--->
 ```
 
-The `map(f)` function replaces (into the new stream) each emitted value according to a function `f` you provide. In our case, we mapped to the number 1 on each click. The `scan(g)` function aggregates all previous values on the stream, producing value `x = g(accumulated, current)`, where `g` was simply the add function in this example. Then, `counterStream` emits the total number of clicks whenever a click happens.
+`map(f)` 函数对原来的流使用我们出入的`f`函数进行转换，并生成新的流。在上面的例子中，我们将每一次点击映射为数字1。`scan(g)`函数将所有流产生的值进行汇总，通过传入`x = g(accumulated, current)`函数产生新的值，`g` 是简单的求和函数。最后 `counterStream`在点击发生后发射点击事件发生的总数。
 
-To show the real power of Reactive, let's just say that you want to have a stream of "double click" events. To make it even more interesting, let's say we want the new stream to consider triple clicks as double clicks, or in general, multiple clicks (two or more). Take a deep breath and imagine how you would do that in a traditional imperative and stateful fashion. I bet it sounds fairly nasty and involves some variables to keep state and some fiddling with time intervals.
+为了展示Reactive的真正力量，我们举个例子：你想要“两次点击”事件的流，或者是“三次点击”，或者是n次点击的流。深呼吸一下，试着想想怎么用传统的命令、状态式方法来解决。我打赌这个这会相当操蛋，你会搞些变量来记录状态，还要搞些处理时延的机制。
 
-Well, in Reactive it's pretty simple. In fact, the logic is just [4 lines of code](http://jsfiddle.net/staltz/4gGgs/27/).
-But let's ignore code for now. Thinking in diagrams is the best way to understand and build streams, whether you're a beginner or an expert.
+如果用Reactive来解决，太他妈简单了。实际上[4行代码就可以搞定](http://jsfiddle.net/staltz/4gGgs/27/)。先不要看代码，不管你是菜鸟还是牛逼，使用图表来思考可以使你更好地理解构建这些流的方法。
 
 ![Multiple clicks stream](http://i.imgur.com/HMGWNO5.png)
 
-Grey boxes are functions transforming one stream into another. First we accumulate clicks in lists, whenever 250 milliseconds of "event silence" has happened (that's what `buffer(stream.throttle(250ms))` does, in a nutshell. Don't worry about understanding the details at this point, we are just demoing Reactive for now). The result is a stream of lists, from which we apply `map()` to map each list to an integer matching the length of that list. Finally, we ignore `1` integers using the `filter(x >= 2)` function. That's it: 3 operations to produce our intended stream. We can then subscribe ("listen") to it to react accordingly how we wish.
+灰色框里面的函数会把一个流转换成另外一个流。首先我们把点击打包到list中，如果点击后消停了250毫秒，我们就重新打包一个新的list（显然`buffer(stream.throttle(250ms))`就是用来干这个的，不明白细节没有关系，反正是demo嘛）。我们在列表上调用`map()`，将列表的长度映射为一个整数的流。最后，我们通过`filter(x >= 2)`过滤掉整数`1`。哈哈：3个操作就生成了我们需要的流，现在我们可以订阅（监听）这个流，然后来完成我们需要的逻辑了。
 
-I hope you enjoy the beauty of this approach. This example is just the tip of the iceberg: you can apply the same operations on different kinds of streams, for instance, on a stream of API responses; on the other hand, there are many other functions available.
+通过这个例子，我希望你能感受到使用Reactive的牛逼之处了。这仅仅是冰山一角。你可以在不同地流上（比如API响应的流）进行同样的操作。同时，Reactive还提供了许多其他实用的函数。
 
 ## "Why should I consider adopting RP?"
 
