@@ -41,9 +41,9 @@ There are plenty of bad explanations and definitions out there on the internet. 
 
 So let's cut the bullshit. 
 
-#### Reactive programming is programming with asynchronous data streams. 
+#### Reactive programming 是一种对异步数据流进行编程的方法。
 
-In a way, this isn't anything new. Event buses or your typical click events are really an asynchronous event stream, on which you can observe and do some side effects. Reactive is that idea on steroids. You are able to create data streams of anything, not just from click and hover events. Streams are cheap and ubiquitous, anything can be a stream: variables, user inputs, properties, caches, data structures, etc. For example, imagine your Twitter feed would be a data stream in the same fashion that click events are. You can listen to that stream and react accordingly.
+就某种程度而言，这并不是一个新的概念。事件总线亦或是典型的点击事件都是异步事件流。使用者可以观测异步事件流，并对其进行操作。Reactive如同强心剂：你可以创建不仅仅是点击、悬停之类的任意的事件流。事件流轻便而无处不在，种类丰富多样：变量，用户的输入，属性，缓存，数据结构等等都可以变为事件流。举例来说：微博简讯（译者注：比如关注的微博更新了）和点击事件都是我们所说的事件流：你监听事件流并作出相应的回应。
 
 **On top of that, you are given an amazing toolbox of functions to combine, create and filter any of those streams.** That's where the "functional" magic kicks in. A stream can be used as an input to another one. Even multiple streams can be used as inputs to another stream. You can _merge_ two streams. You can _filter_ a stream to get another one that has only those events you are interested in. You can _map_ data values from one stream to another new one.
 
