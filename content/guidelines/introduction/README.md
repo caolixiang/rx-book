@@ -35,11 +35,11 @@ I've read two books, one just painted the big picture, while the other dived int
 
 The hardest part of the learning journey is **thinking in Reactive**. It's a lot about letting go of old imperative and stateful habits of typical programming, and forcing your brain to work in a different paradigm. I haven't found any guide on the internet in this aspect, and I think the world deserves a practical tutorial on how to think in Reactive, so that you can get started. Library documentation can light your way after that. I hope this helps you.
 
-## "What is Reactive Programming?"
+## "啥是Reactive Programming?"
 
-There are plenty of bad explanations and definitions out there on the internet. [Wikipedia](https://en.wikipedia.org/wiki/Reactive_programming) is too generic and theoretical as usual. [Stackoverflow](http://stackoverflow.com/questions/1028250/what-is-functional-reactive-programming)'s canonical answer is obviously not suitable for newcomers. [Reactive Manifesto](http://www.reactivemanifesto.org/) sounds like the kind of thing you show to your project manager or the businessmen at your company. Microsoft's [Rx terminology](https://rx.codeplex.com/) "Rx = Observables + LINQ + Schedulers" is so heavy and Microsoftish that most of us are left confused. Terms like "reactive" and "propagation of change" don't convey anything specifically different to what your typical MV* and favorite language already does. Of course my framework views react to the models. Of course change is propagated. If it wouldn't, nothing would be rendered.
+互联网上充斥着很多操蛋的解释。[维基百科](https://en.wikipedia.org/wiki/Reactive_programming) 又宽泛有玄乎。 [Stackoverflow](http://stackoverflow.com/questions/1028250/what-is-functional-reactive-programming)教科书式的解释非常不适合信任[Reactive Manifesto](http://www.reactivemanifesto.org/) 听起来像是给给项目经理或者是销售的汇报。 微软的 [Rx 定义](https://rx.codeplex.com/) "Rx = Observables + LINQ + Schedulers" 太重并且太微软化了，让人看起来不知所云。“响应”、“变化发生”这些术语无法很好地阐释Reactive Programming的显著特点，听起来和你熟悉的MV*、编程语言差别不大。 当然，我的视角也是基于模型和变换的，要是脱离了这些概念，一切都是无稽之谈了。
 
-So let's cut the bullshit. 
+那么我要开始吧啦吧啦了。
 
 #### Reactive programming 是针对异步数据流的编程。
 
@@ -91,36 +91,36 @@ counterStream: ---1----2--3----4------5--->
 
 通过这个例子，我希望你能感受到使用Reactive的牛逼之处了。这仅仅是冰山一角。你可以在不同地流上（比如API响应的流）进行同样的操作。同时，Reactive还提供了许多其他实用的函数。
 
-## "Why should I consider adopting RP?"
+## "那么请告诉我为啥我要在今后使用Reactive programming?"
 
-Reactive Programming raises the level of abstraction of your code so you can focus on the interdependence of events that define the business logic, rather than having to constantly fiddle with a large amount of implementation details. Code in RP will likely be more concise.
+Reactive Programming 提高了编码的抽象程度，你可以更好地关注在商业逻辑中各种事件的联系避免大量细节而琐碎的实现，使得编码更加简洁。
 
-The benefit is more evident in modern webapps and mobile apps that are highly interactive with a multitude of UI events related to data events. 10 years ago, interaction with web pages was basically about submitting a long form to the backend and performing simple rendering to the frontend. Apps have evolved to be more real-time: modifying a single form field can automatically trigger a save to the backend, "likes" to some content can be reflected in real time to other connected users, and so forth.
+使用Reactive Programming，将使得数据、交互错综复杂的web、移动app开发收益更多。10年以前，与网页的交互仅仅是提交表单、然后根据服务器简单地渲染返回结果这些事情。App进化得越来越有实时性：修改表单中一个域可以同步地更新到后端服务器。“点赞”信息实时地在不同用户设备上同步。
 
-Apps nowadays have an abundancy of real-time events of every kind that enable a highly interactive experience to the user. We need tools for properly dealing with that, and Reactive Programming is an answer.
+现代App中大量的实时事件创造了更好的交互和用户体验，披荆斩棘需要利剑在手，Reactive Programming就是你手中的利剑。
 
-## Thinking in RP, with examples
+## Reactive Programming编程思想（附实例）
 
-Let's dive into the real stuff. A real-world example with a step-by-step guide on how to think in RP. No synthetic examples, no half-explained concepts. By the end of this tutorial we will have produced real functioning code, while knowing why we did each thing.
+我们将从实例可以深入Reactive Programming的编程思想，文章末尾，一个完整地实例应用会被构建，你也会理解整个过程。
 
-I picked **JavaScript** and **[RxJS](https://github.com/Reactive-Extensions/RxJS)** as the tools for this, for a reason: JavaScript is the most familiar language out there at the moment, and the [Rx* library family](http://www.reactivex.io) is widely available for many languages and platforms ([.NET](https://rx.codeplex.com/), [Java](https://github.com/Netflix/RxJava), [Scala](https://github.com/Netflix/RxJava/tree/master/language-adaptors/rxjava-scala), [Clojure](https://github.com/Netflix/RxJava/tree/master/language-adaptors/rxjava-clojure),  [JavaScript](https://github.com/Reactive-Extensions/RxJS), [Ruby](https://github.com/Reactive-Extensions/Rx.rb), [Python](https://github.com/Reactive-Extensions/RxPy), [C++](https://github.com/Reactive-Extensions/RxCpp), [Objective-C/Cocoa](https://github.com/ReactiveCocoa/ReactiveCocoa), [Groovy](https://github.com/Netflix/RxJava/tree/master/language-adaptors/rxjava-groovy), etc). So whatever your tools are, you can concretely benefit by following this tutorial.
+我选择 **JavaScript** 和 **[RxJS](https://github.com/Reactive-Extensions/RxJS)** 作为构建的基础, 大多开发者都熟悉JavaScript语言。[Rx* library family](http://www.reactivex.io) 在各种语言和平台都是实现 ([.NET](https://rx.codeplex.com/), [Java](https://github.com/Netflix/RxJava), [Scala](https://github.com/Netflix/RxJava/tree/master/language-adaptors/rxjava-scala), [Clojure](https://github.com/Netflix/RxJava/tree/master/language-adaptors/rxjava-clojure),  [JavaScript](https://github.com/Reactive-Extensions/RxJS), [Ruby](https://github.com/Reactive-Extensions/Rx.rb), [Python](https://github.com/Reactive-Extensions/RxPy), [C++](https://github.com/Reactive-Extensions/RxCpp), [Objective-C/Cocoa](https://github.com/ReactiveCocoa/ReactiveCocoa), [Groovy](https://github.com/Netflix/RxJava/tree/master/language-adaptors/rxjava-groovy), 等等)。无论你选择在哪个平台或者那种语言实践Reactive Programming，你都将从本教程中受益。
 
-## Implementing a "Who to follow" suggestions box
+## 微博（Twitter）简易版“你可能感兴趣的人”推荐
 
-In Twitter there is this UI element that suggests other accounts you could follow:
+微博主页，有一个组件会推荐给你那些你可能感兴趣的人。
 
 ![Twitter Who to follow suggestions box](http://i.imgur.com/eAlNb0j.png)
 
-We are going to focus on imitating its core features, which are:
+我们的Demo将使用这个场景，关注下面这些主要特性：
 
-* On startup, load accounts data from the API and display 3 suggestions
-* On clicking "Refresh", load 3 other account suggestions into the 3 rows
-* On click 'x' button on an account row, clear only that current account and display another
-* Each row displays the account's avatar and links to their page
+* 页面打开后，通过API加载数据展示3个你可能感兴趣的用户账号
+* 点击“刷新”按钮，重新加载三个新的用户账号
+* 在一个用户账号上点击'x' 按钮，清除当前这个账户，重新加载一个新的账户
+* 每行展示账户的信息和这个账户主页的链接
 
-We can leave out the other features and buttons because they are minor. And, instead of Twitter, which recently closed its API to the unauthorized public, let's build that UI for following people on Github. There's a [Github API for getting users](https://developer.github.com/v3/users/#get-all-users).
+其他特性和按钮我们暂且忽略，由于Twitter在最近关闭了公共API授权接口，我们选择Github作为代替，展示GitHub用户的账户。实例中我们使用该接口[获取GitHub用户](https://developer.github.com/v3/users/#get-all-users).
 
-The complete code for this is ready at http://jsfiddle.net/staltz/8jFJH/48/ in case you want to take a peak already.
+如果你希望先睹为快，完成后的代码已经发布在了[Jsfiddle](http://jsfiddle.net/staltz/8jFJH/48/)。
 
 ## Request and response
 
